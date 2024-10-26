@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNS Update Status</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Server DNS Update Status</h1>
+  <div class="output-container" id="outputContainer">
+    <!-- Status updates will appear here -->
+  </div>
+  <div id="ip-address"></div> <!-- Display IP Address -->
+
+  <script>
+    // Function to fetch the current status from the server
+    async function fetchStatus() {
+      try {
+        const response = await fetch('http://localhost:3001/status'); // Update this if necessary
+        const data = await response.json();
+        
+        const outputContainer = document.getElementById('outputContainer');
+        outputContainer.innerHTML = `
+          <div class="output"><strong>Server Status:</strong> ${data.status}</div>
+          <div class="output"><strong>Server IP Address:</strong> ${data.serverIp}</div>
+          <div class="output"><strong>DNS Record ID:</strong> ${data.dnsRecordId}</div>
+          <div class="output"><strong>Updated IP:</strong> ${data.updatedIp}</div>
+          <div class="output"><strong>Message:</strong> ${data.message}</div>
+        `;
+        
+        // Update the IP Address display
+        document.getElementById('ip-address').innerText = `Current IP Address: ${data.serverIp}`;
+      } catch (error) {
+        document.getElementById('outputContainer').innerHTML = `<p>Error fetching data: ${error}</p>`;
+      }
+    }
+
+    // Fetch status on load
+    fetchStatus();
+    
+    // Optionally, you could set an interval to refresh the status
+    setInterval(fetchStatus, 60000); // Poll every 60 seconds
+  </script>
+</body>
+</html>
