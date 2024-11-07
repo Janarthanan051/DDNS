@@ -1,32 +1,56 @@
-async function getIpAddress() {
+async function getServerIpAddress() {
     try {
         const response = await fetch('/api/ip');
-        const ipAddress = await response.text();
-        document.getElementById('ip-address').innerText = `IP Address: ${ipAddress}`;
+        return await response.text();
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching server IP:', error);
+        return null;
     }
 }
 
-async function updateDnsRecords(ipAddress) {
+async function updateDnsRecords() {
     try {
+        // Fetch the latest server IP
+        const ipAddress = await getServerIpAddress();
+        if (!ipAddress) {
+            alert('Failed to fetch server IP.');
+            return;
+        }
+
+        // Update DNS record with the fetched IP
         const response = await fetch('/api/ip/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ipAddress })
         });
         const result = await response.json();
-        console.log(result.message);
-        alert(result.message);
+
+        // Display result or error message
+        if (response.ok) {
+            alert(result.message);
+            document.getElementById('ip-address').innerText = `DNS IP Address: ${ipAddress}`;
+        } else {
+            alert(`Error updating DNS: ${result.error}`);
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error updating DNS:', error);
     }
 }
 
-document.getElementById('update-dns').addEventListener('click', async () => {
-    const ipAddress = document.getElementById('ip-address').innerText.split(': ')[1];
-    await updateDnsRecords(ipAddress);
-});
+// Event listener for the update button
+document.getElementById('update-dns').addEventListener('click', updateDnsRecords);
 
-getIpAddress();
-setInterval(getIpAddress, 60000); // Poll every 60 seconds
+// Initial DNS IP load and periodic update
+async function getDnsIpAddress() {
+    try {
+        const response = await fetch('/api/dns');
+        const data = await response.json();
+        document.getElementById('ip-address').innerText = `DNS IP Address: ${data.ipAddress}`;
+    } catch (error) {
+        console.error('Error fetching DNS IP:', error);
+    }
+}
+
+// Load DNS IP on page load and every 60 seconds
+getDnsIpAddress();
+setInterval(getDnsIpAddress, 60000); 
