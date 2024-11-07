@@ -16,19 +16,17 @@ async function updateDnsRecords(ipAddress) {
             body: JSON.stringify({ ipAddress })
         });
         const result = await response.json();
-        console.log(`DNS records updated: ${result}`);
+        console.log(result.message);
+        alert(result.message);
     } catch (error) {
         console.error(error);
     }
 }
 
+document.getElementById('update-dns').addEventListener('click', async () => {
+    const ipAddress = document.getElementById('ip-address').innerText.split(': ')[1];
+    await updateDnsRecords(ipAddress);
+});
+
 getIpAddress();
 setInterval(getIpAddress, 60000); // Poll every 60 seconds
-
-document.addEventListener('DOMContentLoaded', () => {
-    const ipAddressElement = document.getElementById('ip-address');
-    ipAddressElement.addEventListener('change', () => {
-        const ipAddress = ipAddressElement.innerText.split(': ')[1];
-        updateDnsRecords(ipAddress);
-    });
-});

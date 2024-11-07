@@ -1,18 +1,19 @@
 {
   "name": "dynamic-dns",
   "version": "1.0.0",
-  "main": "server.js",  
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"  
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "jana", 
+  "author": "jana",
   "license": "ISC",
-  "description": "A dynamic DNS server using Express.js and Cloudflare's API", 
+  "description": "A dynamic DNS server using Express.js and Cloudflare's API",
   "dependencies": {
-    "express": "^4.21.0",
-    "node-fetch": "^3.3.2"
+    "express": "^4.21.1",
+    "node-fetch": "^3.3.2",
+    "os": "^0.1.2"
   }
 }

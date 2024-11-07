@@ -1,46 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DNS Update Status</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <title>IP Address and DNS Updater</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>Server DNS Update Status</h1>
-  <div class="output-container" id="outputContainer">
-    <!-- Status updates will appear here -->
+<body class="bg-indigo-950 text-white flex justify-center m-5 p-5">
+  <div>
+    <h1 class="text-6xl font-bold">Current IP Address</h1>
+    <p id="ip-address" class="text-3xl font-bold text-center m-5 p-5 bg-indigo-400/40 rounded-xl">Loading...</p>
+    <div class="flex justify-center">
+      <button id="update-dns" class="bg-white text-indigo-950 font-bold m-5 p-5 text-xl rounded-3xl">Update DNS</button>
+    </div>
   </div>
-  <div id="ip-address"></div> <!-- Display IP Address -->
-
-  <script>
-    // Function to fetch the current status from the server
-    async function fetchStatus() {
-      try {
-        const response = await fetch('http://localhost:3001/status'); // Update this if necessary
-        const data = await response.json();
-        
-        const outputContainer = document.getElementById('outputContainer');
-        outputContainer.innerHTML = `
-          <div class="output"><strong>Server Status:</strong> ${data.status}</div>
-          <div class="output"><strong>Server IP Address:</strong> ${data.serverIp}</div>
-          <div class="output"><strong>DNS Record ID:</strong> ${data.dnsRecordId}</div>
-          <div class="output"><strong>Updated IP:</strong> ${data.updatedIp}</div>
-          <div class="output"><strong>Message:</strong> ${data.message}</div>
-        `;
-        
-        // Update the IP Address display
-        document.getElementById('ip-address').innerText = `Current IP Address: ${data.serverIp}`;
-      } catch (error) {
-        document.getElementById('outputContainer').innerHTML = `<p>Error fetching data: ${error}</p>`;
-      }
-    }
-
-    // Fetch status on load
-    fetchStatus();
-    
-    // Optionally, you could set an interval to refresh the status
-    setInterval(fetchStatus, 60000); // Poll every 60 seconds
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,34 +1,43 @@
 import express from 'express';
 import os from 'os';
 import fetch from 'node-fetch';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Define __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
 
-const apiToken = '58Zge2uLO0_okwYC5evpdzFnqwoFC8BN3eM1jEoK'; 
-const zoneId = 'aa195c71d22fda9edc6377df45871c34'; 
-const recordName = 'computernetworks.com'; 
+// Serve static files (like `script.js`)
+app.use(express.static(path.join(__dirname, '')));
+
+// Constants for Cloudflare API
+const apiToken = process.env.CLOUDFLARE_API_TOKEN || '58Zge2uLO0_okwYC5evpdzFnqwoFC8BN3eM1jEoK';
+const zoneId = process.env.CLOUDFLARE_ZONE_ID || 'aa195c71d22fda9edc6377df45871c34';
+const recordName = process.env.CLOUDFLARE_RECORD_NAME || 'computernetworks.com';
+
+
+// Serve the HTML file on root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Get current IP
 app.get('/api/ip', (req, res) => {
-    console.log('GET /api/ip received');
     const ipAddress = getIpAddress();
-    console.log(`IP Address: ${ipAddress}`);
     res.send(ipAddress);
 });
 
-
-
 // Update DNS record
 app.post('/api/ip/update', async (req, res) => {
-    console.log('POST /api/ip/update received');
     const ipAddress = req.body.ipAddress;
-    console.log(`Updating DNS with IP: ${ipAddress}`);
     try {
         await updateDnsRecords(ipAddress);
         res.json({ message: `DNS records updated: ${ipAddress}` });
     } catch (err) {
-        console.error('Error updating DNS:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -43,7 +52,6 @@ function getIpAddress() {
 
 // Function to update DNS records
 async function updateDnsRecords(ipAddress) {
-    console.log('Fetching DNS records from Cloudflare');
     const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`, {
         method: 'GET',
         headers: {
@@ -58,8 +66,6 @@ async function updateDnsRecords(ipAddress) {
     if (!dnsRecord) {
         throw new Error(`DNS record ${recordName} not found.`);
     }
-
-    console.log(`Found DNS record: ${dnsRecord.id}. Updating to new IP: ${ipAddress}`);
 
     const updateResponse = await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records/${dnsRecord.id}`, {
         method: 'PUT',
@@ -81,19 +87,10 @@ async function updateDnsRecords(ipAddress) {
         throw new Error(`Failed to update DNS record: ${updateData.errors[0].message}`);
     }
 
-    console.log(`DNS record updated successfully to IP: ${ipAddress}`);
     return updateData;
 }
 
-// Start the server and display output immediately
+// Start the server
 app.listen(3001, () => {
     console.log('Server listening on port 3001');
-    const ipAddress = getIpAddress();
-    console.log(`Server IP Address: ${ipAddress}`);
-    updateDnsRecords(ipAddress).then(() => {
-        console.log(`DNS record updated to IP: ${ipAddress}`);
-    }).catch(err => {
-        console.error('Error during DNS update:', err.message);
-    });
-
 });
