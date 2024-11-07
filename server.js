@@ -90,7 +90,9 @@ async function updateDnsRecords(ipAddress) {
     return updateData;
 }
 
-// Start the server
-app.listen(3001, () => {
-    console.log('Server listening on port 3001');
+
+// Start the server and display output with localhost link
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Server listening at http://localhost:${PORT}`);
 });
